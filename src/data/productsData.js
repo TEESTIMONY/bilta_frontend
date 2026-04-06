@@ -1,0 +1,187 @@
+import productBusinessCards from '../assets/product-business-cards.svg'
+import productFlyersBrochures from '../assets/product-flyers-brochures.svg'
+import productBannersSignage from '../assets/product-banners-signage.svg'
+import productPackagingLabels from '../assets/product-packaging-labels.svg'
+import productBookPrinting from '../assets/product-book-printing.svg'
+import productOfficeStationery from '../assets/product-office-stationery.svg'
+
+export const filters = [
+  'All Products',
+  'Business Cards',
+  'Flyers & Brochures',
+  'Banners & Signage',
+  'Packaging Labels',
+  'Book Printing',
+  'Office Stationery',
+]
+
+export const products = [
+  {
+    slug: 'classic-business-cards',
+    category: 'Business Cards',
+    title: 'Classic Business Cards',
+    description: 'Premium card stocks with clean finishing for strong first impressions.',
+    image: productBusinessCards,
+  },
+  {
+    slug: 'spot-uv-business-cards',
+    category: 'Business Cards',
+    title: 'Spot UV Business Cards',
+    description: 'High-contrast glossy highlights for a premium, executive presentation.',
+    image: productBusinessCards,
+  },
+  {
+    slug: 'embossed-business-cards',
+    category: 'Business Cards',
+    title: 'Embossed Business Cards',
+    description: 'Raised-text card finish that adds tactile quality and premium branding feel.',
+    image: productBusinessCards,
+  },
+  {
+    slug: 'matte-finish-business-cards',
+    category: 'Business Cards',
+    title: 'Matte Finish Business Cards',
+    description: 'Soft non-gloss surface with elegant finishing for modern professional use.',
+    image: productBusinessCards,
+  },
+  {
+    slug: 'a5-promotional-flyers',
+    category: 'Flyers & Brochures',
+    title: 'A5 Promotional Flyers',
+    description: 'Promotional print for campaigns, launches, and event communication.',
+    image: productFlyersBrochures,
+  },
+  {
+    slug: 'tri-fold-brochures',
+    category: 'Flyers & Brochures',
+    title: 'Tri-fold Brochures',
+    description: 'Structured brochure layouts for services, menus, and company profiles.',
+    image: productFlyersBrochures,
+  },
+  {
+    slug: 'bi-fold-company-brochures',
+    category: 'Flyers & Brochures',
+    title: 'Bi-fold Company Brochures',
+    description: 'Clean fold brochures ideal for business presentations and service catalogs.',
+    image: productFlyersBrochures,
+  },
+  {
+    slug: 'event-handbills',
+    category: 'Flyers & Brochures',
+    title: 'Event Handbills',
+    description: 'High-volume handbills for concerts, launches, conferences, and campaigns.',
+    image: productFlyersBrochures,
+  },
+  {
+    slug: 'roll-up-banners',
+    category: 'Banners & Signage',
+    title: 'Roll-up Banners',
+    description: 'Indoor and outdoor visibility assets for businesses and events.',
+    image: productBannersSignage,
+  },
+  {
+    slug: 'outdoor-flex-signage',
+    category: 'Banners & Signage',
+    title: 'Outdoor Flex Signage',
+    description: 'Durable weather-ready signage for shops, campaigns, and directional use.',
+    image: productBannersSignage,
+  },
+  {
+    slug: 'backdrop-banners',
+    category: 'Banners & Signage',
+    title: 'Backdrop Banners',
+    description: 'Wide-format backdrop prints for events, media walls, and stage branding.',
+    image: productBannersSignage,
+  },
+  {
+    slug: 'indoor-directional-signs',
+    category: 'Banners & Signage',
+    title: 'Indoor Directional Signs',
+    description: 'Clear signage solutions for office navigation, events, and public spaces.',
+    image: productBannersSignage,
+  },
+  {
+    slug: 'product-label-stickers',
+    category: 'Packaging Labels',
+    title: 'Product Label Stickers',
+    description: 'Custom labels and packaging visuals that elevate product presentation.',
+    image: productPackagingLabels,
+  },
+  {
+    slug: 'bottle-jar-labels',
+    category: 'Packaging Labels',
+    title: 'Bottle & Jar Labels',
+    description: 'Waterproof and matte options for cosmetics, food, and drink packaging.',
+    image: productPackagingLabels,
+  },
+  {
+    slug: 'box-seal-labels',
+    category: 'Packaging Labels',
+    title: 'Box Seal Labels',
+    description: 'Branded seal stickers for packaged products and retail shipping boxes.',
+    image: productPackagingLabels,
+  },
+  {
+    slug: 'barcode-product-labels',
+    category: 'Packaging Labels',
+    title: 'Barcode Product Labels',
+    description: 'Scannable barcode labels for inventory, retail operations, and logistics.',
+    image: productPackagingLabels,
+  },
+  {
+    slug: 'softcover-book-printing',
+    category: 'Book Printing',
+    title: 'Softcover Book Printing',
+    description: 'Professional print and finishing support for books and booklets.',
+    image: productBookPrinting,
+  },
+  {
+    slug: 'hardcover-book-printing',
+    category: 'Book Printing',
+    title: 'Hardcover Book Printing',
+    description: 'Premium-bound books for authors, schools, and official publications.',
+    image: productBookPrinting,
+  },
+  {
+    slug: 'spiral-bound-manuals',
+    category: 'Book Printing',
+    title: 'Spiral Bound Manuals',
+    description: 'Durable spiral books for training manuals, reports, and course materials.',
+    image: productBookPrinting,
+  },
+  {
+    slug: 'perfect-bound-catalogs',
+    category: 'Book Printing',
+    title: 'Perfect Bound Catalogs',
+    description: 'Professional perfect-bound catalogs for product showcases and portfolios.',
+    image: productBookPrinting,
+  },
+  {
+    slug: 'office-letterhead-sets',
+    category: 'Office Stationery',
+    title: 'Office Letterhead Sets',
+    description: 'Letterheads, invoices, receipts, and daily branded office materials.',
+    image: productOfficeStationery,
+  },
+  {
+    slug: 'invoice-receipt-books',
+    category: 'Office Stationery',
+    title: 'Invoice & Receipt Books',
+    description: 'Branded duplicate receipt books and invoice pads for business operations.',
+    image: productOfficeStationery,
+  },
+  {
+    slug: 'branded-envelopes',
+    category: 'Office Stationery',
+    title: 'Branded Envelopes',
+    description: 'Corporate envelopes with custom identity for formal communication.',
+    image: productOfficeStationery,
+  },
+  {
+    slug: 'company-notepads',
+    category: 'Office Stationery',
+    title: 'Company Notepads',
+    description: 'Custom notepads for office use, event packs, and internal workflows.',
+    image: productOfficeStationery,
+  },
+]
