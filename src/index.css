@@ -30,3 +30,12 @@ h6 {
 .btn-ghost {
   @apply cursor-pointer border-2 border-navy px-5 py-3 font-bold text-navy transition hover:bg-navy hover:text-white active:scale-95;
 }
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

@@ -1,18 +1,24 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, ShoppingCart, X } from 'lucide-react'
+import { getCartCount } from '../services/cartService'
 
 const navItems = [
-  { label: 'Products', to: '/products' },
-  { label: 'Services', to: '/#services' },
-  { label: 'How It Works', to: '/#how-it-works' },
+  { label: 'Home', to: '/' },
   { label: 'About', to: '/about' },
+  { label: 'Shop', to: '/products' },
+  { label: 'Services', to: '/services' },
+  { label: 'Business Kits', to: '/business-kits' },
+  { label: 'Event Branding', to: '/event-branding' },
+  { label: 'Book Printing', to: '/book-printing' },
+  { label: 'How It Works', to: '/how-it-works' },
   { label: 'Contact', to: '/contact' },
 ]
 
 function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [cartCount, setCartCount] = useState(0)
   const location = useLocation()
 
   useEffect(() => {
@@ -26,6 +32,17 @@ function Navbar() {
     setOpen(false)
   }, [location.pathname, location.hash])
 
+  useEffect(() => {
+    const refresh = () => setCartCount(getCartCount())
+    refresh()
+    window.addEventListener('cart:updated', refresh)
+    window.addEventListener('storage', refresh)
+    return () => {
+      window.removeEventListener('cart:updated', refresh)
+      window.removeEventListener('storage', refresh)
+    }
+  }, [])
+
   const isActive = (to) => {
     if (to.includes('#')) {
       const [path, hash] = to.split('#')
@@ -38,7 +55,7 @@ function Navbar() {
     <header
       className={`sticky top-0 z-50 border-b bg-white/80 backdrop-blur ${scrolled ? 'border-slate-300' : 'border-transparent'}`}
     >
-      <nav className="container-shell py-3">
+      <nav className="container-shell relative py-3">
         <div className="flex items-center justify-between gap-4">
           <Link to="/" className="font-sora text-2xl font-extrabold tracking-tight text-navy">
             BILTA<span className="text-yellow">.</span>
@@ -56,30 +73,32 @@ function Navbar() {
                 {item.label}
               </Link>
             ))}
-            <button
+            <Link
+              to="/cart"
               className="relative p-2 text-slate-700 transition hover:text-navy"
               aria-label="Open cart"
             >
               <ShoppingCart size={18} />
               <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center bg-yellow px-1 text-[10px] font-bold text-navy">
-                0
+                {cartCount}
               </span>
-            </button>
+            </Link>
             <Link to="/contact" className="btn-primary text-sm">
               Get a Quote
             </Link>
           </div>
 
           <div className="flex items-center gap-2 lg:hidden">
-            <button
+            <Link
+              to="/cart"
               className="relative p-2 text-slate-700"
               aria-label="Open cart"
             >
               <ShoppingCart size={18} />
               <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center bg-yellow px-1 text-[10px] font-bold text-navy">
-                0
+                {cartCount}
               </span>
-            </button>
+            </Link>
 
             <button
               onClick={() => setOpen((v) => !v)}
@@ -92,9 +111,11 @@ function Navbar() {
         </div>
 
         <div
-          className={`overflow-hidden transition-all duration-300 lg:hidden ${open ? 'max-h-[420px] pt-4' : 'max-h-0'}`}
+          className={`absolute left-0 right-0 top-full z-50 px-4 transition-all duration-300 sm:px-6 lg:hidden lg:px-8 ${
+            open ? 'pointer-events-auto translate-y-2 opacity-100' : 'pointer-events-none -translate-y-1 opacity-0'
+          }`}
         >
-          <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-3">
+          <div className="container-shell space-y-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
             {navItems.map((item) => (
               <Link
                 key={item.label}

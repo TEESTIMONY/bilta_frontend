@@ -9,7 +9,7 @@ function Footer() {
             BILTA<span className="text-yellow">.</span>
           </p>
           <p className="mt-3 max-w-sm text-sm text-slate-300">
-            Professional print, branding, and packaging partner helping businesses show up better.
+            Bilta helps businesses print, brand, and package themselves properly.
           </p>
         </div>
 
@@ -34,7 +34,17 @@ function Footer() {
             </li>
             <li>
               <Link to="/products" className="transition hover:text-yellow">
-                Products
+                Shop
+              </Link>
+            </li>
+            <li>
+              <Link to="/services" className="transition hover:text-yellow">
+                Services
+              </Link>
+            </li>
+            <li>
+              <Link to="/faq" className="transition hover:text-yellow">
+                FAQ
               </Link>
             </li>
             <li>
@@ -49,7 +59,10 @@ function Footer() {
       <div className="border-t border-white/10 py-4">
         <div className="container-shell flex flex-col justify-between gap-2 text-xs text-slate-400 sm:flex-row">
           <p>© {new Date().getFullYear()} Bilta. All rights reserved.</p>
-          <p>Print · Brand · Package</p>
+          <p>
+            Built on over 30 years of service, Bilta is a growing print and brand support company
+            helping businesses show up with more clarity, consistency, and confidence.
+          </p>
         </div>
       </div>
     </footer>

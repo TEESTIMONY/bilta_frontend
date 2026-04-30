@@ -1,20 +1,93 @@
-import { Link, useParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-import { products } from '../data/productsData'
+import { getProductsData } from '../services/productsService'
+import { addCartItem } from '../services/cartService'
 
-const categoryHighlights = {
-  'Business Cards': ['Premium stock options', 'Matte / Gloss / Spot UV finishes', 'Fast turnaround for urgent orders'],
-  'Flyers & Brochures': ['Single fold, bi-fold, and tri-fold formats', 'Campaign-friendly bulk print runs', 'High-color marketing output'],
-  'Banners & Signage': ['Indoor and outdoor print materials', 'Durable inks for visibility', 'Multiple display sizes available'],
-  'Packaging Labels': ['Waterproof and matte label options', 'Custom cut and shape support', 'Suitable for retail and logistics'],
-  'Book Printing': ['Softcover and hardcover options', 'Neat binding and finishing', 'Ideal for manuals and catalogs'],
-  'Office Stationery': ['Corporate identity consistency', 'Daily-use branded materials', 'Scalable print quantities'],
+function formatPrice(value) {
+  const raw = String(value ?? '').trim()
+  if (!raw) return 'Price on request'
+
+  const numericCandidate = raw.replace(/[₦,\s]/g, '')
+  if (/^\d+(\.\d+)?$/.test(numericCandidate)) {
+    const amount = Number(numericCandidate)
+    if (Number.isFinite(amount)) {
+      return `₦${amount.toLocaleString('en-NG')}`
+    }
+  }
+
+  return raw
 }
 
 function ProductDetails() {
   const { slug } = useParams()
-  const product = products.find((item) => item.slug === slug)
+  const navigate = useNavigate()
+  const [products, setProducts] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [activeImage, setActiveImage] = useState('')
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadProducts() {
+      setIsLoading(true)
+      const data = await getProductsData()
+      if (!isMounted) return
+      setProducts(data.products)
+      setIsLoading(false)
+    }
+
+    loadProducts()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const product = useMemo(() => products.find((item) => item.slug === slug), [products, slug])
+  const productImages = useMemo(() => {
+    if (!product) return []
+    const images = Array.isArray(product.images) && product.images.length ? product.images : [product.image]
+    return [...new Set(images.map((entry) => String(entry || '').trim()).filter(Boolean))]
+  }, [product])
+
+  const relatedProducts = useMemo(() => {
+    if (!product) return []
+
+    return products
+      .filter((item) => item.slug !== product.slug && item.category === product.category)
+      .slice(0, 4)
+  }, [product, products])
+
+  useEffect(() => {
+    setActiveImage(productImages[0] || '')
+  }, [productImages])
+
+  function handleAddToCart() {
+    if (!product) return
+    addCartItem({
+      slug: product.slug,
+      title: product.title,
+      price: product.price,
+      image: product.image,
+      quantity: 1,
+    })
+    navigate('/cart')
+  }
+
+  if (isLoading) {
+    return (
+      <>
+        <Navbar />
+        <main className="container-shell py-20">
+          <p className="text-sm font-semibold uppercase tracking-widest text-navy">Product</p>
+          <h1 className="mt-3 text-3xl font-extrabold sm:text-4xl">Loading product...</h1>
+        </main>
+        <Footer />
+      </>
+    )
+  }
 
   if (!product) {
     return (
@@ -47,43 +120,92 @@ function ProductDetails() {
           <div className="mt-6 grid gap-8 lg:grid-cols-[1.1fr_1fr]">
             <div className="border border-slate-200 bg-white p-4 shadow-sm">
               <img
-                src={product.image}
+                src={activeImage || product.image}
                 alt={product.title}
-                className="h-[280px] w-full border border-slate-200 object-cover sm:h-[360px]"
+                className="h-[280px] w-full border border-slate-200 object-cover sm:h-[460px]"
               />
+
+              {productImages.length > 1 ? (
+                <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {productImages.map((image, index) => (
+                    <button
+                      key={`${product.slug}-thumb-${index}`}
+                      type="button"
+                      onClick={() => setActiveImage(image)}
+                      className={`overflow-hidden border ${activeImage === image ? 'border-navy' : 'border-slate-200'}`}
+                    >
+                      <img
+                        src={image}
+                        alt={`${product.title} ${index + 1}`}
+                        className="h-16 w-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             <div>
               <p className="text-sm font-semibold uppercase tracking-widest text-navy">{product.category}</p>
               <h1 className="mt-2 text-3xl font-extrabold sm:text-4xl">{product.title}</h1>
-              <p className="mt-4 text-[17px] leading-relaxed text-slate-600">{product.description}</p>
+              <p className="mt-4 whitespace-pre-wrap text-[17px] leading-relaxed text-slate-600">{product.details || product.description}</p>
+              <p className="mt-3 text-base font-semibold text-navy">{formatPrice(product.price)}</p>
 
-              <div className="mt-6 rounded-2xl border border-slate-200 bg-[#F4F8FC] p-5">
-                <h2 className="text-base font-bold text-slate-800">Project Details</h2>
-                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-slate-700">
-                  {(categoryHighlights[product.category] ?? []).map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
+              <div className="mt-6">
+                {product.enableDesignUpload ? (
+                  <div className="mb-3">
+                    <button
+                      type="button"
+                      className="border-2 border-navy px-5 py-3 text-sm font-bold text-navy transition hover:bg-navy hover:text-white"
+                    >
+                      Start and Upload Design
+                    </button>
+                  </div>
+                ) : null}
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                <a
-                  href="https://wa.me/YOURNUMBER"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-primary"
-                >
-                  Request Quote
-                </a>
-                <Link
-                  to="/contact"
-                  className="border-2 border-navy px-5 py-3 text-sm font-bold text-navy transition hover:bg-navy hover:text-white"
-                >
-                  Talk to Bilta
-                </Link>
+                <div className="flex flex-wrap gap-3">
+                  <button onClick={handleAddToCart} className="btn-primary">
+                    Add to Cart
+                  </button>
+                  <Link
+                    to="/contact"
+                    className="border-2 border-navy px-5 py-3 text-sm font-bold text-navy transition hover:bg-navy hover:text-white"
+                  >
+                    Talk to Bilta
+                  </Link>
+                </div>
               </div>
             </div>
+          </div>
+
+          <div className="mt-10 p-0">
+            <h2 className="text-2xl font-extrabold">Description</h2>
+            <p className="mt-4 text-lg font-bold text-slate-900">{product.title}</p>
+            <p className="mt-2 whitespace-pre-wrap text-[17px] leading-relaxed text-slate-600">{product.description}</p>
+          </div>
+
+          <div className="mt-10">
+            <h2 className="text-2xl font-extrabold">Related products</h2>
+
+            {relatedProducts.length ? (
+              <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {relatedProducts.map((item) => (
+                  <article key={item.slug} className="border border-slate-200 bg-white p-4 shadow-sm">
+                    <img src={item.image} alt={item.title} className="h-44 w-full border border-slate-200 object-cover" />
+                    <h3 className="mt-3 text-base font-bold">{item.title}</h3>
+                    <p className="mt-2 text-sm font-semibold text-navy">{formatPrice(item.price)}</p>
+                    <Link
+                      to={`/products/${item.slug}`}
+                      className="mt-3 inline-block border-2 border-navy px-4 py-2 text-xs font-bold text-navy transition hover:bg-navy hover:text-white"
+                    >
+                      View Product
+                    </Link>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-slate-600">No related products found in this category yet.</p>
+            )}
           </div>
         </section>
       </main>

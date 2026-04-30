@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Keep backend-only code out of the frontend repo
+backend/
+crm/
+manage.py
+requirements.txt
+Procfile
+db.sqlite3

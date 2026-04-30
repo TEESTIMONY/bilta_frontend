@@ -1,6 +1,5 @@
 import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
-import TrustBar from '../components/TrustBar'
 import Intro from '../components/Intro'
 import Services from '../components/Services'
 import WhyBilta from '../components/WhyBilta'
@@ -16,7 +15,6 @@ function Home() {
       <Navbar />
       <main>
         <Hero />
-        <TrustBar />
         <Intro />
         <Services />
         <WhyBilta />

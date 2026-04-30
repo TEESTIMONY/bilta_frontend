@@ -8,12 +8,13 @@ function Mission() {
           More than a print shop. A print partner.
         </h2>
         <p className="mt-5 text-[17px] leading-relaxed text-slate-200">
-          Our mission is simple: help brands communicate clearly through quality print, practical
-          branding tools, and functional packaging systems that fit their growth stage.
+          Bilta exists to help businesses, brands, and events present themselves with more clarity,
+          confidence, and professionalism.
         </p>
         <p className="mt-4 text-[17px] leading-relaxed text-slate-200">
-          At Bilta, we combine decades of craftsmanship with modern workflows so businesses can
-          order confidently, deliver faster, and look professional at every customer touchpoint.
+          We believe the right print decisions can improve how people see your business, strengthen
+          how your event is remembered, and support how your brand grows. That’s why we don’t just
+          print stuff. We print them well.
         </p>
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">

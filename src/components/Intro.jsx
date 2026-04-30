@@ -1,32 +1,36 @@
 function Intro() {
   return (
-    <section className="container-shell grid gap-10 py-16 md:grid-cols-2 md:py-20">
-      <div>
-        <h2 className="text-3xl font-extrabold sm:text-4xl">
-          Built from service. Growing with systems.
+    <section className="bg-navy py-16 md:py-20">
+      <div className="container-shell">
+        <h2 className="max-w-3xl text-3xl font-extrabold text-white sm:text-4xl">
+          Built from service. <span className="text-yellow">Growing with systems</span>
         </h2>
-        <p className="mt-5 text-[17px] leading-relaxed text-slate-600">
-          For over 30 years, Bilta has supported businesses, schools, churches, event planners,
-          and authors with reliable print production. What started with simple paper jobs has grown
-          into a full print, branding, and packaging operation powered by better systems, faster
-          delivery, and a team that understands what quality means for your brand.
+        <p className="mt-5 max-w-4xl text-[17px] leading-relaxed text-slate-200">
+          Bilta started over 30 years ago with one typewriter, a kiosk, and a commitment to helping
+          people type and move forward.
         </p>
-      </div>
+        <p className="mt-4 max-w-4xl text-[17px] leading-relaxed text-slate-200">
+          Today, we’re building on that same foundation with better systems, better presentation,
+          and a stronger vision — helping businesses, brands and events print and package themselves
+          properly.
+        </p>
+        <p className="mt-4 max-w-4xl text-[17px] leading-relaxed text-slate-200">
+          What built Bilta was consistency, service, and work people could trust.
+        </p>
 
-      <div className="space-y-5">
-        {[
-          ['01', '1990s — Foundation', 'Bilta began as a trusted neighborhood print shop.'],
-          ['02', '2000s — Expansion', 'Added branding support and higher-capacity production.'],
-          ['03', 'Today — Systemized Service', 'Now delivering print, brand and packaging in one flow.'],
-        ].map(([num, title, desc]) => (
-          <div key={num} className="flex gap-4 border border-slate-200 p-5">
-            <span className="text-2xl font-extrabold text-yellow">{num}</span>
-            <div>
-              <h3 className="text-lg font-bold">{title}</h3>
-              <p className="mt-1 text-sm text-slate-600">{desc}</p>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            '30+ years of service',
+            'Print, branding & packaging in one place',
+            'Trusted by businesses and individuals',
+            'Business, event & book production',
+            'Online and WhatsApp order support',
+          ].map((item) => (
+            <div key={item} className="border-l-2 border-l-yellow border-white/20 bg-white/10 p-4 text-sm font-semibold text-white">
+              {item}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   )

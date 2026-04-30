@@ -2,24 +2,24 @@ import { Building2, CircleCheckBig, Gauge, Layers3, ShieldCheck } from 'lucide-r
 
 const features = [
   {
+    icon: Layers3,
+    title: 'We think beyond the print',
+    text: 'We don’t just ask, “What do you want to print?” We ask, “What does your brand need?”',
+  },
+  {
     icon: ShieldCheck,
-    title: 'Consistent Quality Control',
-    text: 'Every production batch follows checks for color, finishing, and brand consistency.',
+    title: 'We care about the details',
+    text: 'From layout to finish, small details change how your business is perceived.',
   },
   {
     icon: Gauge,
-    title: 'Faster Turnaround Workflow',
-    text: 'Clear process steps reduce delays from request to final delivery.',
-  },
-  {
-    icon: Layers3,
-    title: 'End-to-End Production Stack',
-    text: 'Design support, print execution, finishing, and packaging under one coordinated team.',
+    title: 'We believe service matters',
+    text: 'Fast is good. But thoughtful, clear, and dependable is better.',
   },
   {
     icon: Building2,
-    title: 'Built for Business Operations',
-    text: 'We support corporate teams, event brands, product businesses, and institutions at scale.',
+    title: 'We’re building with intention',
+    text: 'Bilta is growing into a more modern print and brand support system — one that values both legacy and progress.',
   },
 ]
 
@@ -29,9 +29,11 @@ function WhyBilta() {
       <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
         <div className="lg:col-span-8">
           <p className="text-sm font-semibold uppercase tracking-widest text-navy">Why Bilta</p>
-          <h2 className="mt-3 max-w-3xl text-3xl font-extrabold sm:text-4xl">
-            Why businesses and event brands choose Bilta.
-          </h2>
+          <h2 className="mt-3 max-w-3xl text-3xl font-extrabold sm:text-4xl">Why Bilta?</h2>
+          <p className="mt-4 max-w-3xl text-[17px] text-slate-600">
+            Because printing isn’t just about putting ink on paper. It’s about helping your business
+            show up with clarity, care, and confidence.
+          </p>
         </div>
         <div className="grid grid-cols-2 gap-3 lg:col-span-4">
           <div className="border border-slate-200 bg-[#F4F8FC] p-3">
@@ -66,7 +68,7 @@ function WhyBilta() {
 
       <div className="mt-6 flex items-center gap-2 border border-slate-200 bg-[#F4F8FC] px-4 py-3 text-sm text-slate-700">
         <CircleCheckBig size={16} className="text-navy" />
-        Trusted by businesses, schools, churches, event planners, and independent creators.
+        Trusted by businesses, event hosts, schools, creators, and individuals.
       </div>
     </section>
   )

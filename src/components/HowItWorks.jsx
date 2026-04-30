@@ -8,28 +8,28 @@ import processDelivery from '../assets/process-delivery.svg'
 
 const steps = [
   {
-    title: 'Choose Product',
-    note: 'Select the exact item category (cards, flyers, labels, books, packaging).',
+    title: 'Review your order',
+    note: 'We review your files and request details carefully before production starts.',
     image: processChoose,
   },
   {
-    title: 'Share Details',
-    note: 'Send quantity, preferred size, finishing options, and your deadline clearly.',
+    title: 'Confirm details',
+    note: 'We confirm quantities, sizes, timelines, and important production specs.',
     image: processDetails,
   },
   {
-    title: 'Approve Preview',
-    note: 'Review the layout preview and approve it before production starts.',
+    title: 'Refine what’s needed',
+    note: 'Where needed, we guide better material choices and finishing options.',
     image: processPreview,
   },
   {
-    title: 'Production',
-    note: 'Your order enters controlled print, finishing, and quality checks.',
+    title: 'Produce your job',
+    note: 'Your work enters printing and finishing with quality checks in place.',
     image: processProduction,
   },
   {
-    title: 'Pickup/Delivery',
-    note: 'Receive updates and collect your job or schedule direct delivery.',
+    title: 'Notify when ready',
+    note: 'We notify you when your job is ready for pickup, rider, or delivery.',
     image: processDelivery,
   },
 ]
@@ -43,16 +43,16 @@ function HowItWorks() {
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md">
             <MonitorSmartphone className="text-navy" />
-            <h3 className="mt-3 text-xl font-bold">Shop Online</h3>
+            <h3 className="mt-3 text-xl font-bold">Option 1: Shop online</h3>
             <p className="mt-2 text-sm text-slate-600">
-              Browse products, select options, and submit your order details from any device.
+              Add your product to cart, upload your files, and check out directly through the website.
             </p>
           </article>
           <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md">
             <MessageCircle className="text-navy" />
-            <h3 className="mt-3 text-xl font-bold">Order via WhatsApp</h3>
+            <h3 className="mt-3 text-xl font-bold">Option 2: Order through WhatsApp</h3>
             <p className="mt-2 text-sm text-slate-600">
-              Send your request directly and receive guided support from our team.
+              Send us what you need, and we’ll guide you through the process from there.
             </p>
           </article>
         </div>
