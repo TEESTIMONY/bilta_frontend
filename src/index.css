@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply m-0 bg-white font-dm text-[16px] text-slate-700 antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-sora leading-tight text-slate-900;
+}
+
+.container-shell {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+.btn-primary {
+  @apply cursor-pointer bg-yellow px-5 py-3 font-bold text-navy transition hover:bg-yellow-hover active:scale-95;
+}
+
+.btn-ghost {
+  @apply cursor-pointer border-2 border-navy px-5 py-3 font-bold text-navy transition hover:bg-navy hover:text-white active:scale-95;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
