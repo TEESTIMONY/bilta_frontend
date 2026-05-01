@@ -53,7 +53,7 @@ function Hero() {
             <Timer className="mt-0.5 text-yellow" size={16} />
             <p className="text-sm text-slate-100">Online and WhatsApp order support.</p>
           </div>
-        </div>
+        </div>hhh
 
         <a
           href="https://wa.me/YOURNUMBER"
