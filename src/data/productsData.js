@@ -1,4 +1,4 @@
-import rawProducts from '../../nukreationz_extract/products.json'
+import rawProducts from './products.json'
 
 function normalizeUrl(url = '') {
   try {
