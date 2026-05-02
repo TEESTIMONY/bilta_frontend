@@ -91,7 +91,7 @@ function TeamOrdersDashboard() {
           <h1 className="text-3xl font-extrabold text-navy">Orders Dashboard</h1>
           <p className="mt-2 text-sm text-slate-600">Track paid orders, status workflow, messaging state, and create manual job orders.</p>
 
-          <div className="mt-6 grid grid-cols-5 gap-3">
+          <div className="mt-6 grid grid-cols-3 gap-3">
             <Stat label="Total Orders" value={summary.total} />
             <Stat label="Paid Orders" value={summary.paid} />
             <Stat label="Delivered" value={summary.delivered} />
