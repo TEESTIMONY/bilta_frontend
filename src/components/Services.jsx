@@ -55,7 +55,7 @@ function Services() {
           From everyday business essentials to premium event branding and book production, we help
           you print and package properly.
         </p>
-        <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {serviceItems.map(({ icon: Icon, title, desc, includes, cta, to }) => (
             <article
               key={title}
