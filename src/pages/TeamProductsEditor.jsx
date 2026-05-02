@@ -274,7 +274,7 @@ function TeamProductsEditor() {
             Manage product content, pricing, images, and detail-page options from one structured admin view.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid grid-cols-3 gap-3">
             <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Products</p>
               <p className="mt-1 text-2xl font-extrabold text-navy">{products.length}</p>
@@ -283,7 +283,7 @@ function TeamProductsEditor() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Visible</p>
               <p className="mt-1 text-2xl font-extrabold text-slate-900">{visibleProducts.length}</p>
             </div>
-            <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm sm:col-span-2">
+            <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Active category</p>
               <p className="mt-1 truncate text-base font-bold text-slate-900">{activeCategory}</p>
             </div>
