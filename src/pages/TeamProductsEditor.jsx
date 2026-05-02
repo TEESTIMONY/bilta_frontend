@@ -23,6 +23,20 @@ function buildImages(primaryImage, extraImages = []) {
   return [...new Set(normalized)]
 }
 
+function readFilesAsDataUrls(fileList = []) {
+  return Promise.all(
+    [...fileList].map(
+      (file) =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(String(reader.result || ''))
+          reader.onerror = () => reject(new Error('Image upload failed'))
+          reader.readAsDataURL(file)
+        }),
+    ),
+  )
+}
+
 function TeamProductsEditor() {
   const [products, setProducts] = useState([])
   const [status, setStatus] = useState('')
@@ -181,6 +195,22 @@ function TeamProductsEditor() {
       const images = buildImages(current.image, extras)
       return { ...current, image: images[0] || '', images }
     })
+  }
+
+  async function handleNewProductImageUpload(files) {
+    if (!files?.length) return
+
+    try {
+      const uploadedImages = await readFilesAsDataUrls(files)
+      setNewProduct((current) => {
+        const existing = Array.isArray(current.images) && current.images.length ? current.images : [current.image]
+        const images = buildImages(existing[0], [...existing.slice(1), ...uploadedImages])
+        return { ...current, image: images[0] || '', images }
+      })
+      setStatus(`${uploadedImages.length} image(s) uploaded for new product. Click Add Product to save it.`)
+    } catch {
+      setStatus('Image upload failed. Please try another file.')
+    }
   }
 
   async function createProductFromModal() {
@@ -348,6 +378,27 @@ function TeamProductsEditor() {
                     <label className="text-sm font-semibold text-slate-700 md:col-span-2">Image URL<input value={newProduct.image} onChange={(e) => updateNewProduct('image', e.target.value)} className={inputClass} /></label>
                     <label className="text-sm font-semibold text-slate-700 md:col-span-2">Additional image URLs (one per line)<textarea value={(newProduct.images || []).slice(1).join('\n')} onChange={(e) => updateNewProductExtraImages(e.target.value)} className={`${inputClass} min-h-20`} /></label>
                   </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <label className="inline-flex cursor-pointer items-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                      Upload image(s)
+                      <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleNewProductImageUpload(e.target.files)} />
+                    </label>
+                    <span className="text-xs text-slate-500 sm:text-sm">You can upload one or multiple images.</span>
+                  </div>
+
+                  {(newProduct.images || [newProduct.image]).filter(Boolean).length ? (
+                    <div className="mt-4 rounded-md border border-slate-200 bg-slate-50/70 p-3">
+                      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Image previews</p>
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        {(newProduct.images || [newProduct.image]).filter(Boolean).map((image, imageIndex) => (
+                          <div key={`new-product-preview-${imageIndex}`} className="overflow-hidden rounded-md border border-slate-200 bg-white">
+                            <img src={image} alt={`${newProduct.title || 'New product'} preview ${imageIndex + 1}`} className="aspect-[4/3] w-full object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
                   <div className="mt-6 flex justify-end gap-2">
                     <button onClick={() => setIsAddModalOpen(false)} className="rounded-md border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
                     <button onClick={createProductFromModal} disabled={isSaving} className="rounded-md border border-navy bg-navy px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0a2347] disabled:opacity-60">{isSaving ? 'Adding...' : 'Add Product'}</button>
