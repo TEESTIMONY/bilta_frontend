@@ -263,6 +263,7 @@ function TeamProductsEditor() {
               <table className="w-full min-w-[820px] text-left text-sm">
                 <thead className="bg-slate-100 text-xs uppercase tracking-[0.12em] text-slate-600">
                   <tr>
+                    <th className="px-3 py-3">S/N</th>
                     <th className="px-3 py-3">Title</th>
                     <th className="px-3 py-3">Slug</th>
                     <th className="px-3 py-3">Category</th>
@@ -275,6 +276,7 @@ function TeamProductsEditor() {
                   {visibleProducts.length ? (
                     visibleProducts.map(({ product, index }) => (
                       <tr key={`${product.slug}-${index}`} className="border-t border-slate-100">
+                        <td className="px-3 py-3 font-semibold text-slate-700">{index + 1}</td>
                         <td className="px-3 py-3 font-semibold text-slate-900">{product.title || '-'}</td>
                         <td className="px-3 py-3 text-slate-600">{product.slug || '-'}</td>
                         <td className="px-3 py-3">{product.category || '-'}</td>
@@ -290,7 +292,7 @@ function TeamProductsEditor() {
                     ))
                   ) : (
                     <tr>
-                      <td className="px-3 py-4 text-slate-600" colSpan={6}>No products match your current filters.</td>
+                      <td className="px-3 py-4 text-slate-600" colSpan={7}>No products match your current filters.</td>
                     </tr>
                   )}
                 </tbody>
