@@ -59,7 +59,7 @@ function TeamCustomersPage() {
           <h1 className="text-3xl font-extrabold text-navy">Customers</h1>
           <p className="mt-2 text-sm text-slate-600">Manage your customer contact list and track first-time vs returning buyers.</p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid grid-cols-3 gap-3">
             <Stat label="Total Customers" value={stats.total} />
             <Stat label="Returning" value={stats.returning} />
             <Stat label="First-time" value={stats.firstTime} />
