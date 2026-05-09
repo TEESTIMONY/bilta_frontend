@@ -3,17 +3,17 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { getProductsData } from '../services/productsService'
-import { addCartItem } from '../services/cartService'
+import { getOrderDraft, saveOrderDraft } from '../services/productOrderFlowService'
 
 function formatPrice(value) {
   const raw = String(value ?? '').trim()
   if (!raw) return 'Price on request'
 
-  const numericCandidate = raw.replace(/[₦,\s]/g, '')
+  const numericCandidate = raw.replace(/[â‚¦,\s]/g, '')
   if (/^\d+(\.\d+)?$/.test(numericCandidate)) {
     const amount = Number(numericCandidate)
     if (Number.isFinite(amount)) {
-      return `₦${amount.toLocaleString('en-NG')}`
+      return `â‚¦${amount.toLocaleString('en-NG')}`
     }
   }
 
@@ -25,7 +25,9 @@ function ProductDetails() {
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [activeImage, setActiveImage] = useState('')
+  const [selectedImage, setSelectedImage] = useState('')
+  const initialDraft = useMemo(() => getOrderDraft(slug), [slug])
+  const [quantity, setQuantity] = useState(Math.max(1, Number(initialDraft.quantity || 1)))
 
   useEffect(() => {
     let isMounted = true
@@ -60,20 +62,20 @@ function ProductDetails() {
       .slice(0, 4)
   }, [product, products])
 
-  useEffect(() => {
-    setActiveImage(productImages[0] || '')
-  }, [productImages])
+  const activeImage =
+    productImages.includes(selectedImage) ? selectedImage : productImages[0] || product?.image || ''
 
-  function handleAddToCart() {
+  useEffect(() => {
     if (!product) return
-    addCartItem({
-      slug: product.slug,
-      title: product.title,
-      price: product.price,
-      image: product.image,
-      quantity: 1,
+    setQuantity(Math.max(1, Number(initialDraft.quantity || 1)))
+  }, [initialDraft.quantity, product])
+
+  function handleContinueOrder() {
+    if (!product) return
+    saveOrderDraft(product.slug, {
+      quantity,
     })
-    navigate('/cart')
+    navigate(`/products/${product.slug}/order`)
   }
 
   if (isLoading) {
@@ -114,7 +116,7 @@ function ProductDetails() {
       <main>
         <section className="container-shell py-16 md:py-20">
           <Link to="/products" className="text-sm font-semibold text-navy hover:underline">
-            ← Back to Products
+            â† Back to Products
           </Link>
 
           <div className="mt-6 grid gap-8 lg:grid-cols-[1.1fr_1fr]">
@@ -131,7 +133,7 @@ function ProductDetails() {
                     <button
                       key={`${product.slug}-thumb-${index}`}
                       type="button"
-                      onClick={() => setActiveImage(image)}
+                      onClick={() => setSelectedImage(image)}
                       className={`overflow-hidden border ${activeImage === image ? 'border-navy' : 'border-slate-200'}`}
                     >
                       <img
@@ -152,21 +154,49 @@ function ProductDetails() {
               <p className="mt-3 text-base font-semibold text-navy">{formatPrice(product.price)}</p>
 
               <div className="mt-6">
-                {product.enableDesignUpload ? (
-                  <div className="mb-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <div className="sm:min-w-[180px]">
+                    <label className="block text-sm font-semibold text-slate-700">
+                      Quantity
+                      <div className="mt-2 flex items-center border border-slate-300 bg-white">
+                        <button
+                          type="button"
+                          onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+                          className="px-4 py-3 text-lg font-bold text-slate-700 transition hover:bg-slate-50"
+                          aria-label="Decrease quantity"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="number"
+                          min="1"
+                          value={quantity}
+                          onChange={(e) => setQuantity(Math.max(1, Number(e.target.value || 1)))}
+                          className="w-full border-x border-slate-300 px-3 py-3 text-center text-sm font-semibold outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setQuantity((current) => current + 1)}
+                          className="px-4 py-3 text-lg font-bold text-slate-700 transition hover:bg-slate-50"
+                          aria-label="Increase quantity"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="sm:pb-[1px]">
                     <button
-                      type="button"
-                      className="border-2 border-navy px-5 py-3 text-sm font-bold text-navy transition hover:bg-navy hover:text-white"
+                      onClick={handleContinueOrder}
+                      className="btn-primary w-full sm:w-auto"
                     >
-                      Start and Upload Design
+                      Order Now
                     </button>
                   </div>
-                ) : null}
+                </div>
 
-                <div className="flex flex-wrap gap-3">
-                  <button onClick={handleAddToCart} className="btn-primary">
-                    Add to Cart
-                  </button>
+                <div className="mt-4 flex flex-wrap gap-3">
                   <Link
                     to="/contact"
                     className="border-2 border-navy px-5 py-3 text-sm font-bold text-navy transition hover:bg-navy hover:text-white"

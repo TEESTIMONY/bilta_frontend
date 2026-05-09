@@ -36,11 +36,11 @@ function WhyBilta() {
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3 lg:col-span-4">
-          <div className="border border-slate-200 bg-[#F4F8FC] p-3">
+          <div className="home-stat-card border border-slate-200 bg-[#F4F8FC] p-3">
             <p className="text-2xl font-extrabold text-navy">30+</p>
             <p className="text-xs uppercase tracking-wide text-slate-600">Years Experience</p>
           </div>
-          <div className="border border-slate-200 bg-[#F4F8FC] p-3">
+          <div className="home-stat-card border border-slate-200 bg-[#F4F8FC] p-3">
             <p className="text-2xl font-extrabold text-navy">1000+</p>
             <p className="text-xs uppercase tracking-wide text-slate-600">Annual Jobs</p>
           </div>
@@ -48,17 +48,17 @@ function WhyBilta() {
       </div>
 
       <div className="mt-10 grid gap-4 md:grid-cols-2">
-        {features.map(({ icon: Icon, title, text }, idx) => (
-          <article key={title} className="border border-slate-200 bg-white p-6 shadow-md">
+        {features.map((feature, idx) => (
+          <article key={feature.title} className="home-grid-card border border-slate-200 bg-white p-6 shadow-md">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-bold">{title}</h3>
-                <p className="mt-2 text-sm text-slate-600">{text}</p>
+                <h3 className="text-lg font-bold">{feature.title}</h3>
+                <p className="mt-2 text-sm text-slate-600">{feature.text}</p>
               </div>
               <div className="text-right">
                 <span className="text-xs font-semibold text-slate-500">0{idx + 1}</span>
                 <span className="mt-2 block text-navy">
-                  <Icon size={18} />
+                  <feature.icon size={18} />
                 </span>
               </div>
             </div>
@@ -66,7 +66,7 @@ function WhyBilta() {
         ))}
       </div>
 
-      <div className="mt-6 flex items-center gap-2 border border-slate-200 bg-[#F4F8FC] px-4 py-3 text-sm text-slate-700">
+      <div className="home-stat-card mt-6 flex items-center gap-2 border border-slate-200 bg-[#F4F8FC] px-4 py-3 text-sm text-slate-700">
         <CircleCheckBig size={16} className="text-navy" />
         Trusted by businesses, event hosts, schools, creators, and individuals.
       </div>

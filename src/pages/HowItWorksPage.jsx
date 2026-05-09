@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import { buildWhatsAppUrl } from '../utils/whatsapp'
 
 const orderOptions = [
   {
@@ -55,13 +56,15 @@ function HowItWorksPage() {
     <>
       <Navbar />
       <main>
-        <section className="container-shell py-16 md:py-20">
-          <p className="text-sm font-semibold uppercase tracking-widest text-navy">How It Works</p>
-          <h1 className="mt-3 text-4xl font-extrabold sm:text-5xl">A clearer, easier way to print.</h1>
-          <p className="mt-5 max-w-3xl text-[17px] leading-relaxed text-slate-600">
-            Whether you prefer to shop directly on the website or send your request through
-            WhatsApp, Bilta makes the process easier from start to finish.
-          </p>
+        <section className="bg-navy py-16 text-white md:py-20">
+          <div className="container-shell">
+            <p className="text-sm font-semibold uppercase tracking-widest text-yellow">How It Works</p>
+            <h1 className="mt-3 text-4xl font-extrabold text-white sm:text-5xl">A clearer, easier way to print.</h1>
+            <p className="mt-5 max-w-3xl text-[17px] leading-relaxed text-slate-100">
+              Whether you prefer to shop directly on the website or send your request through
+              WhatsApp, Bilta makes the process easier from start to finish.
+            </p>
+          </div>
         </section>
 
         <section className="bg-[#F4F8FC] py-16">
@@ -121,7 +124,7 @@ function HowItWorksPage() {
               <Link to="/products" className="btn-primary">
                 Shop Online
               </Link>
-              <a href="https://wa.me/YOURNUMBER" target="_blank" rel="noreferrer" className="btn-ghost">
+              <a href={buildWhatsAppUrl()} target="_blank" rel="noreferrer" className="btn-ghost">
                 Order on WhatsApp
               </a>
             </div>

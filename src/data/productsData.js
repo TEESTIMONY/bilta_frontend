@@ -107,7 +107,6 @@ export const products = rawProducts
       title,
       description: `High-quality ${title} printing tailored for brands, events, and business use.`,
       details: `High-quality ${title} printing tailored for brands, events, and business use.`,
-      enableDesignUpload: false,
       image: localImage || item.image_url,
       price: normalizedPrice || 'Price on request',
     }

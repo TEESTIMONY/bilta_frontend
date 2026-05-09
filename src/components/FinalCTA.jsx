@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
+import { buildWhatsAppUrl } from '../utils/whatsapp'
 
 function FinalCTA() {
   return (
-    <section className="bg-yellow py-16 md:py-20">
+    <section className="home-cta-stage bg-yellow py-16 md:py-20">
       <div className="container-shell text-center">
         <h2 className="text-3xl font-extrabold text-navy sm:text-4xl">
           Let&apos;s help you show up properly.
@@ -19,7 +20,7 @@ function FinalCTA() {
             Request a Quote
           </Link>
           <a
-            href="https://wa.me/YOURNUMBER"
+            href={buildWhatsAppUrl()}
             target="_blank"
             rel="noreferrer"
             className="cursor-pointer border-2 border-navy px-5 py-3 font-bold text-navy transition hover:bg-navy hover:text-white active:scale-95"

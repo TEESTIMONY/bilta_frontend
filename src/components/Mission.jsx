@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 function Mission() {
   return (
-    <section className="bg-navy-deeper py-16 text-center text-white md:py-20">
+    <section className="home-band-section bg-navy-deeper py-16 text-center text-white md:py-20">
       <div className="container-shell max-w-4xl">
         <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
           More than a print shop. A print partner.

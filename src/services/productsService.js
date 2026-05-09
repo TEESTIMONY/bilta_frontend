@@ -1,8 +1,7 @@
 import { filters as localFilters, products as localProducts } from '../data/productsData'
+import { DJANGO_API_BASE, USE_DJANGO_API, fetchAllPages, fetchJson } from './api'
 
 const TEAM_PRODUCTS_STORAGE_KEY = 'bilta_team_products_v1'
-const DJANGO_API_BASE = import.meta.env.VITE_DJANGO_API_BASE || 'http://127.0.0.1:8000/api'
-const USE_DJANGO_API = import.meta.env.VITE_USE_DJANGO_API === 'true' || Boolean(import.meta.env.VITE_DJANGO_API_BASE)
 
 function hasRequiredProductFields(item) {
   return item && item.slug && item.title && item.category && item.image
@@ -17,13 +16,16 @@ function normalizeImageList(item) {
 function normalizeProductItem(item) {
   const images = normalizeImageList(item)
   const primaryImage = images[0] || String(item?.image || '').trim()
+  const sizeOptions = Array.isArray(item?.sizeOptions ?? item?.size_options)
+    ? [...new Set((item?.sizeOptions ?? item?.size_options).map((entry) => String(entry || '').trim()).filter(Boolean))]
+    : []
 
   return {
     ...item,
     image: primaryImage,
     images,
     details: item?.details || item?.description || '',
-    enableDesignUpload: Boolean(item?.enableDesignUpload ?? item?.enable_design_upload),
+    sizeOptions,
   }
 }
 
@@ -51,40 +53,11 @@ function toApiProductPayload(item) {
     description: item.description || '',
     details: item.details || item.description || '',
     price: item.price || 'Price on request',
+    size_options: Array.isArray(item.sizeOptions) ? item.sizeOptions : [],
     image: item.image,
     images: Array.isArray(item.images) ? item.images : [item.image].filter(Boolean),
-    enable_design_upload: Boolean(item.enableDesignUpload),
     is_active: item.is_active ?? true,
   }
-}
-
-async function fetchJson(url, options) {
-  const response = await fetch(url, {
-    headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
-    ...options,
-  })
-
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`)
-  }
-
-  return response.status === 204 ? null : response.json()
-}
-
-async function fetchAllPages(url) {
-  const all = []
-  let nextUrl = url
-
-  while (nextUrl) {
-    const data = await fetchJson(nextUrl)
-    if (Array.isArray(data)) return data
-
-    const results = Array.isArray(data?.results) ? data.results : []
-    all.push(...results)
-    nextUrl = data?.next || null
-  }
-
-  return all
 }
 
 async function getProductsFromDjango() {
@@ -99,6 +72,14 @@ async function getProductsFromDjango() {
       products = normalizeProducts(seededItems)
     } catch (error) {
       console.warn('[productsService] Django bootstrap seed failed:', error)
+    }
+  }
+
+  if (!products.length) {
+    return {
+      products: localProducts,
+      filters: localFilters,
+      source: 'django-empty-local-fallback',
     }
   }
 
@@ -198,7 +179,7 @@ export async function getProductsData() {
       return await getProductsFromDjango()
     } catch (error) {
       console.warn('[productsService] Django API fetch failed:', error)
-      return { products: [], filters: ['All Products'], source: 'django-error' }
+      return { products: localProducts, filters: localFilters, source: 'django-error-local-fallback' }
     }
   }
 
@@ -211,7 +192,7 @@ export async function getProductsData() {
 
   if (sanityProjectId && sanityDataset) {
     try {
-      const query = '*[_type == "product"]{slug, category, title, description, details, enableDesignUpload, price, image{asset->{url}}}'
+      const query = '*[_type == "product"]{slug, category, title, description, details, price, image{asset->{url}}}'
       const sanityUrl = `https://${sanityProjectId}.api.sanity.io/v${sanityApiVersion}/data/query/${sanityDataset}?query=${encodeURIComponent(query)}`
       const response = await fetch(sanityUrl)
       if (!response.ok) throw new Error(`Sanity request failed: ${response.status}`)

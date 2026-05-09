@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -17,11 +17,7 @@ function formatNaira(value) {
 }
 
 function Cart() {
-  const [items, setItems] = useState([])
-
-  useEffect(() => {
-    setItems(getCartItems())
-  }, [])
+  const [items, setItems] = useState(() => getCartItems())
 
   const totalItems = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items])
   const subtotal = useMemo(() => {
@@ -65,20 +61,28 @@ function Cart() {
               {items.length ? (
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <article key={item.slug} className="flex gap-4 border-b border-slate-100 pb-4">
+                    <article key={item.cartKey} className="flex gap-4 border-b border-slate-100 pb-4">
                       <img src={item.image} alt={item.title} className="h-28 w-28 rounded-md border border-slate-200 object-cover sm:h-32 sm:w-32" />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-bold text-slate-900">{item.title}</p>
                         <p className="mt-1 text-sm text-navy">{item.price}</p>
+                        {item.specificationSummary ? (
+                          <p className="mt-2 text-xs leading-5 text-slate-500">{item.specificationSummary}</p>
+                        ) : null}
+                        {item.uploadedDesignNames.length ? (
+                          <p className="mt-1 text-xs font-semibold text-emerald-700">
+                            Design uploaded: {item.uploadedDesignNames.join(', ')}
+                          </p>
+                        ) : null}
                         <div className="mt-2 flex items-center gap-2">
                           <input
                             type="number"
                             min="1"
                             value={item.quantity}
-                            onChange={(e) => handleQty(item.slug, e.target.value)}
+                            onChange={(e) => handleQty(item.cartKey, e.target.value)}
                             className="w-20 rounded-md border border-slate-300 px-2 py-1 text-sm"
                           />
-                          <button onClick={() => handleRemove(item.slug)} className="text-xs font-semibold text-red-600 hover:underline">
+                          <button onClick={() => handleRemove(item.cartKey)} className="text-xs font-semibold text-red-600 hover:underline">
                             Remove
                           </button>
                         </div>

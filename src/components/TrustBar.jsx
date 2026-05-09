@@ -12,12 +12,12 @@ function TrustBar() {
   return (
     <section className="bg-navy py-7">
       <div className="container-shell grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {badges.map(({ icon: Icon, text }) => (
-          <div key={text} className="flex items-center gap-3 rounded-xl bg-white/10 p-3 text-white">
+        {badges.map((badge) => (
+          <div key={badge.text} className="flex items-center gap-3 rounded-xl bg-white/10 p-3 text-white">
             <span className="rounded-lg bg-yellow p-2 text-navy">
-              <Icon size={16} />
+              <badge.icon size={16} />
             </span>
-            <p className="text-sm font-medium leading-snug">{text}</p>
+            <p className="text-sm font-medium leading-snug">{badge.text}</p>
           </div>
         ))}
       </div>

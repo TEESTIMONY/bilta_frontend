@@ -1,32 +1,4 @@
-const DJANGO_API_BASE = import.meta.env.VITE_DJANGO_API_BASE || 'http://127.0.0.1:8000/api'
-const USE_DJANGO_API = import.meta.env.VITE_USE_DJANGO_API === 'true' || Boolean(import.meta.env.VITE_DJANGO_API_BASE)
-
-async function fetchJson(url, options) {
-  const response = await fetch(url, {
-    headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
-    ...options,
-  })
-
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`)
-  }
-
-  return response.status === 204 ? null : response.json()
-}
-
-async function fetchAllPages(url) {
-  const all = []
-  let nextUrl = url
-
-  while (nextUrl) {
-    const payload = await fetchJson(nextUrl)
-    const results = Array.isArray(payload?.results) ? payload.results : []
-    all.push(...results)
-    nextUrl = payload?.next || null
-  }
-
-  return all
-}
+import { DJANGO_API_BASE, USE_DJANGO_API, fetchAllPages, fetchJson } from './api'
 
 function normalizeCustomer(item) {
   return {

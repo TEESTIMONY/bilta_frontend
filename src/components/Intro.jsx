@@ -1,6 +1,6 @@
 function Intro() {
   return (
-    <section className="bg-navy py-16 md:py-20">
+    <section className="home-band-section bg-navy py-16 md:py-20">
       <div className="container-shell">
         <h2 className="max-w-3xl text-3xl font-extrabold text-white sm:text-4xl">
           Built from service. <span className="text-yellow">Growing with systems</span>
@@ -26,7 +26,7 @@ function Intro() {
             'Business, event & book production',
             'Online and WhatsApp order support',
           ].map((item) => (
-            <div key={item} className="border-l-2 border-l-yellow border-white/20 bg-white/10 p-4 text-sm font-semibold text-white">
+            <div key={item} className="home-list-card border-l-2 border-l-yellow border-white/20 bg-white/10 p-4 text-sm font-semibold text-white">
               {item}
             </div>
           ))}

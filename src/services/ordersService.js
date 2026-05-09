@@ -1,43 +1,37 @@
-const DJANGO_API_BASE = import.meta.env.VITE_DJANGO_API_BASE || 'http://127.0.0.1:8000/api'
-const USE_DJANGO_API = import.meta.env.VITE_USE_DJANGO_API === 'true' || Boolean(import.meta.env.VITE_DJANGO_API_BASE)
+import { DJANGO_API_BASE, USE_DJANGO_API, fetchAllPages, fetchJson } from './api'
 
 function normalizeOrder(item) {
   return {
     ...item,
+    jobType: item?.job_type || '',
+    description: item?.description || '',
     customerName: item?.customer_name || '',
+    customerPhone: item?.customer_phone || '',
+    customerEmail: item?.customer_email || '',
+    customerBusinessName: item?.customer_business_name || '',
+    createdByName: item?.created_by_name || '',
+    quantity: Math.max(1, Number(item?.quantity || 1)),
+    unitPrice: Number(item?.unit_price || 0),
+    specialInstructions: item?.special_instructions || '',
+    projectScopeNote: item?.project_scope_note || '',
+    attachments: Array.isArray(item?.attachments)
+      ? item.attachments.map((attachment) => ({
+          id: attachment.id,
+          originalName: attachment.original_name || 'Attachment',
+          contentType: attachment.content_type || '',
+          sizeBytes: Number(attachment.size_bytes || 0),
+          createdAt: attachment.created_at || '',
+          downloadUrl: attachment.download_url || '',
+        }))
+      : [],
     paymentStatus: item?.payment_status || 'unpaid',
-    hasBeenMessaged: Boolean(item?.has_been_messaged),
-    totalAmount: Number(item?.total_amount || 0),
+    totalAmount: Number(item?.total_amount ?? item?.total ?? 0),
     amountPaid: Number(item?.amount_paid || 0),
     balanceDue: Number(item?.balance_due || 0),
+    deadline: item?.deadline || null,
+    hasBeenMessaged: Boolean(item?.has_been_messaged),
+    isOverdue: Boolean(item?.is_overdue),
   }
-}
-
-async function fetchJson(url, options) {
-  const response = await fetch(url, {
-    headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
-    ...options,
-  })
-
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`)
-  }
-
-  return response.status === 204 ? null : response.json()
-}
-
-async function fetchAllPages(url) {
-  const all = []
-  let nextUrl = url
-
-  while (nextUrl) {
-    const payload = await fetchJson(nextUrl)
-    const results = Array.isArray(payload?.results) ? payload.results : []
-    all.push(...results)
-    nextUrl = payload?.next || null
-  }
-
-  return all
 }
 
 export async function getOrdersData() {
@@ -45,57 +39,86 @@ export async function getOrdersData() {
     return { orders: [], source: 'disabled' }
   }
 
-  const orders = await fetchAllPages(`${DJANGO_API_BASE}/orders/`)
+  const orders = await fetchAllPages(`${DJANGO_API_BASE}/jobs/`)
   return { orders: orders.map(normalizeOrder), source: 'django' }
 }
 
+export async function getJobsQueueData() {
+  if (!USE_DJANGO_API) {
+    return { orders: [], source: 'disabled' }
+  }
+
+  const orders = await fetchJson(`${DJANGO_API_BASE}/jobs/queue/`)
+  return {
+    orders: (Array.isArray(orders) ? orders : []).map(normalizeOrder),
+    source: 'django',
+  }
+}
+
+export async function getDailySummary(date) {
+  if (!USE_DJANGO_API) {
+    return { source: 'disabled', summary: null }
+  }
+
+  const query = date ? `?date=${encodeURIComponent(date)}` : ''
+  const summary = await fetchJson(`${DJANGO_API_BASE}/reports/daily-summary/${query}`)
+  return { summary, source: 'django' }
+}
+
 export async function updateOrderQuickFields(orderId, updates) {
-  const payload = {
-    ...updates,
-  }
-
-  if ('paymentStatus' in payload) {
-    payload.payment_status = payload.paymentStatus
-    delete payload.paymentStatus
-  }
-
-  if ('hasBeenMessaged' in payload) {
-    payload.has_been_messaged = payload.hasBeenMessaged
-    delete payload.hasBeenMessaged
-  }
-
-  const updated = await fetchJson(`${DJANGO_API_BASE}/orders/${orderId}/`, {
+  const updated = await fetchJson(`${DJANGO_API_BASE}/jobs/${orderId}/`, {
     method: 'PATCH',
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ ...updates }),
   })
 
   return normalizeOrder(updated)
 }
 
-export async function createManualOrder({ customerName, phone, totalAmount, notes }) {
-  const normalizedAmount = Number(totalAmount || 0)
-
-  const customer = await fetchJson(`${DJANGO_API_BASE}/customers/`, {
+export async function createJob(payload) {
+  const created = await fetchJson(`${DJANGO_API_BASE}/jobs/`, {
     method: 'POST',
-    body: JSON.stringify({ full_name: customerName, phone }),
+    body: JSON.stringify(payload),
   })
 
-  const code = `JOB-${Date.now()}`
-  const order = await fetchJson(`${DJANGO_API_BASE}/orders/`, {
+  return normalizeOrder(created)
+}
+
+export async function ensureWalkInCustomer() {
+  const customers = await fetchAllPages(`${DJANGO_API_BASE}/customers/`)
+  const existing = customers.find(
+    (customer) =>
+      customer?.customer_type === 'walk_in' &&
+      String(customer?.full_name || '').trim().toLowerCase() === 'walk-in',
+  )
+
+  if (existing?.id) {
+    return existing
+  }
+
+  return fetchJson(`${DJANGO_API_BASE}/customers/`, {
     method: 'POST',
     body: JSON.stringify({
-      code,
-      customer: customer.id,
-      source: 'manual',
-      payment_status: 'paid',
-      status: 'new',
-      total_amount: String(normalizedAmount),
-      amount_paid: String(normalizedAmount),
-      internal_notes: notes || '',
-      currency: 'NGN',
-      items: [],
+      full_name: 'Walk-in',
+      customer_type: 'walk_in',
+      notes: 'Generic walk-in customer record for quick counter jobs.',
     }),
   })
+}
 
-  return normalizeOrder(order)
+export async function createManualOrder({ customerName, phone, totalAmount, notes }) {
+  const normalizedAmount = Number(totalAmount || 0)
+  const walkInCustomer = await ensureWalkInCustomer()
+
+  const description = [customerName, phone, notes].filter(Boolean).join(' | ')
+
+  return createJob({
+    customer: walkInCustomer.id,
+    job_type: 'walk_in',
+    description,
+    status: 'pending',
+    quantity: 1,
+    unit_price: String(normalizedAmount),
+    amount_paid: String(normalizedAmount),
+    special_instructions: notes || '',
+  })
 }

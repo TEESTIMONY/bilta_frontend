@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import { buildWhatsAppUrl } from '../utils/whatsapp'
 
 function Contact() {
   const [form, setForm] = useState({
@@ -33,7 +34,7 @@ function Contact() {
     return lines.join('\n')
   }, [form])
 
-  const whatsappHref = `https://wa.me/YOURNUMBER?text=${encodeURIComponent(whatsappMessage)}`
+  const whatsappHref = buildWhatsAppUrl(whatsappMessage)
 
   function updateField(key, value) {
     setForm((current) => ({ ...current, [key]: value }))

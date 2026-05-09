@@ -55,27 +55,28 @@ function Services() {
           From everyday business essentials to premium event branding and book production, we help
           you print and package properly.
         </p>
-        <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {serviceItems.map(({ icon: Icon, title, desc, includes, cta, to }) => (
+        <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {serviceItems.map((service, index) => (
             <article
-              key={title}
-              className="group border border-slate-200 bg-white p-6 shadow-md transition hover:-translate-y-1 hover:border-yellow"
+              key={service.title}
+              className="home-grid-card group animate-fade-up border border-slate-200 bg-white p-6 shadow-md transition duration-300 hover:-translate-y-2 hover:border-yellow hover:shadow-xl"
+              style={{ animationDelay: `${index * 110}ms` }}
             >
-              <div className="mb-4 inline-flex bg-yellow/20 p-3 text-navy">
-                <Icon size={20} />
+              <div className="mb-4 inline-flex bg-yellow/20 p-3 text-navy transition duration-300 group-hover:scale-110 group-hover:rotate-3">
+                <service.icon size={20} />
               </div>
-              <h3 className="text-xl font-bold">{title}</h3>
-              <p className="mt-2 text-sm text-slate-600">{desc}</p>
-              <ul className="mt-4 space-y-1 text-sm text-slate-500">
-                {includes.map((item) => (
-                  <li key={item}>• {item}</li>
+              <h3 className="text-xl font-bold">{service.title}</h3>
+              <p className="mt-2 text-sm text-slate-600">{service.desc}</p>
+              <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-slate-500 marker:text-slate-400">
+                {service.includes.map((item) => (
+                  <li key={item} className="transition duration-300 group-hover:translate-x-1">{item}</li>
                 ))}
               </ul>
               <Link
-                to={to}
-                className="mt-5 inline-flex items-center gap-2 border-l-4 border-transparent pl-3 text-sm font-semibold text-navy transition group-hover:border-yellow"
+                to={service.to}
+                className="mt-5 inline-flex items-center gap-2 border-l-4 border-transparent pl-3 text-sm font-semibold text-navy transition duration-300 group-hover:border-yellow group-hover:gap-3"
               >
-                {cta} <ArrowRight size={16} />
+                {service.cta} <ArrowRight size={16} />
               </Link>
             </article>
           ))}

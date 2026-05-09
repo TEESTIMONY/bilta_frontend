@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-import { getCartItems } from '../services/cartService'
+import { clearCart, getCartItems } from '../services/cartService'
+import { submitPublicCheckoutRequest } from '../services/publicOrdersService'
+import { clearUploadDraftFiles, getUploadDraftFiles } from '../services/uploadDraftVault'
 
 const countryOptions = [
   'Nigeria',
@@ -43,6 +45,8 @@ function Checkout() {
     additionalNote: '',
   })
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [statusMessage, setStatusMessage] = useState('')
 
   const summaryItems = useMemo(() => {
     if (cartItems.length) return cartItems
@@ -63,9 +67,63 @@ function Checkout() {
     setForm((current) => ({ ...current, [key]: value }))
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
-    setSubmitted(true)
+    if (!summaryItems.length) {
+      setStatusMessage('Add at least one item before placing an order request.')
+      return
+    }
+
+    setSubmitting(true)
+    setStatusMessage('')
+
+    try {
+      const uploadOrderItems = summaryItems.filter(
+        (item) => item.requestMode === 'upload' && item.uploadedDesignNames?.length,
+      )
+
+      const missingUploadBundle = uploadOrderItems.find((item) => {
+        if (!item.uploadBundleId) return true
+        return getUploadDraftFiles(item.uploadBundleId).length === 0
+      })
+
+      if (missingUploadBundle) {
+        throw new Error('Your uploaded design file is no longer available. Please go back and upload it again before checkout.')
+      }
+
+      const attachedFiles = uploadOrderItems.flatMap((item) =>
+        getUploadDraftFiles(item.uploadBundleId).map((entry) => entry.file),
+      )
+
+      const payload = {
+        first_name: form.firstName.trim(),
+        last_name: form.lastName.trim(),
+        country: form.country.trim(),
+        street_address: form.streetAddress.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        additional_note: form.additionalNote.trim(),
+        items: summaryItems.map((item) => ({
+          slug: item.slug || '',
+          title: item.title || 'Selected Product',
+          price: item.price || 'Price on request',
+          quantity: Number(item.quantity || 1),
+          requestMode: item.requestMode || 'standard',
+          specificationSummary: item.specificationSummary || '',
+          uploadedDesignNames: Array.isArray(item.uploadedDesignNames) ? item.uploadedDesignNames : [],
+        })),
+      }
+
+      await submitPublicCheckoutRequest(payload, attachedFiles)
+      setSubmitted(true)
+      setStatusMessage('')
+      uploadOrderItems.forEach((item) => clearUploadDraftFiles(item.uploadBundleId))
+      clearCart()
+    } catch (error) {
+      setStatusMessage(error.message || 'We could not submit your order request right now.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const inputClass =
@@ -126,11 +184,23 @@ function Checkout() {
                 </label>
               </div>
 
-              <button type="submit" className="btn-primary mt-5 rounded-md">Place Order Request</button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="btn-primary mt-5 rounded-md disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {submitting ? 'Submitting...' : 'Place Order Request'}
+              </button>
+
+              {statusMessage ? (
+                <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+                  {statusMessage}
+                </p>
+              ) : null}
 
               {submitted ? (
                 <p className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
-                  Thank you! Your request has been captured. Our team will contact you shortly to confirm your order.
+                  Thank you! Your order request has been submitted successfully. We&apos;ll contact you with the next step.
                 </p>
               ) : null}
             </form>
@@ -140,10 +210,18 @@ function Checkout() {
               <div className="mt-4 space-y-3">
                 {summaryItems.length ? (
                   summaryItems.map((item) => (
-                    <div key={item.slug || item.title} className="flex items-start justify-between gap-3 border-b border-slate-100 pb-2 text-sm">
+                    <div key={item.cartKey || item.slug || item.title} className="flex items-start justify-between gap-3 border-b border-slate-100 pb-2 text-sm">
                       <div>
                         <p className="font-semibold text-slate-800">{item.title || 'Selected Product'}</p>
                         <p className="text-xs text-slate-500">Qty: {Number(item.quantity || 1)}</p>
+                        {item.specificationSummary ? (
+                          <p className="mt-1 text-xs leading-5 text-slate-500">{item.specificationSummary}</p>
+                        ) : null}
+                        {item.uploadedDesignNames?.length ? (
+                          <p className="mt-1 text-xs font-semibold text-emerald-700">
+                            Uploaded: {item.uploadedDesignNames.join(', ')}
+                          </p>
+                        ) : null}
                       </div>
                       <p className="font-semibold text-navy">{item.price || 'Price on request'}</p>
                     </div>

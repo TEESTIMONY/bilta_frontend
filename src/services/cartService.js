@@ -6,11 +6,18 @@ function isBrowser() {
 
 function normalizeItem(item) {
   return {
+    cartKey: String(item?.cartKey || item?.slug || ''),
     slug: String(item?.slug || ''),
     title: String(item?.title || 'Untitled Product'),
     price: String(item?.price || 'Price on request'),
     image: String(item?.image || ''),
     quantity: Math.max(1, Number(item?.quantity || 1)),
+    requestMode: String(item?.requestMode || 'standard'),
+    specificationSummary: String(item?.specificationSummary || ''),
+    uploadBundleId: String(item?.uploadBundleId || ''),
+    uploadedDesignNames: Array.isArray(item?.uploadedDesignNames)
+      ? item.uploadedDesignNames.map((entry) => String(entry || '').trim()).filter(Boolean)
+      : [],
   }
 }
 
@@ -26,7 +33,7 @@ export function getCartItems() {
     if (!raw) return []
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
-    return parsed.map(normalizeItem).filter((item) => item.slug)
+    return parsed.map(normalizeItem).filter((item) => item.slug && item.cartKey)
   } catch {
     return []
   }
@@ -43,7 +50,7 @@ export function addCartItem(item) {
   if (!incoming.slug) return
 
   const current = getCartItems()
-  const existingIndex = current.findIndex((entry) => entry.slug === incoming.slug)
+  const existingIndex = current.findIndex((entry) => entry.cartKey === incoming.cartKey)
 
   if (existingIndex >= 0) {
     current[existingIndex] = {
@@ -60,14 +67,14 @@ export function addCartItem(item) {
 export function updateCartItemQuantity(slug, quantity) {
   const current = getCartItems()
   const updated = current.map((item) =>
-    item.slug === slug ? { ...item, quantity: Math.max(1, Number(quantity || 1)) } : item,
+    item.cartKey === slug ? { ...item, quantity: Math.max(1, Number(quantity || 1)) } : item,
   )
   saveCartItems(updated)
 }
 
 export function removeCartItem(slug) {
   const current = getCartItems()
-  saveCartItems(current.filter((item) => item.slug !== slug))
+  saveCartItems(current.filter((item) => item.cartKey !== slug))
 }
 
 export function clearCart() {

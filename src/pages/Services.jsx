@@ -1,5 +1,6 @@
 import { ArrowRight, BookOpenText, BriefcaseBusiness, Package, Palette, Printer } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 
@@ -86,17 +87,35 @@ const categories = [
 ]
 
 function Services() {
+  useEffect(() => {
+    const nodes = document.querySelectorAll('.services-reveal')
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.14 }
+    )
+
+    nodes.forEach((node) => observer.observe(node))
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <>
       <Navbar />
       <main>
-        <section className="border-b border-slate-200 bg-gradient-to-b from-white to-[#F8FAFC] py-16 md:py-20">
+        <section className="border-b border-slate-200 bg-navy py-16 text-white md:py-20">
           <div className="container-shell">
-            <p className="text-sm font-semibold uppercase tracking-widest text-navy">Services</p>
-            <h1 className="mt-3 max-w-4xl text-4xl font-extrabold leading-tight text-slate-900 sm:text-5xl">
+            <p className="animate-fade-up text-sm font-semibold uppercase tracking-widest text-yellow">Services</p>
+            <h1 className="animate-fade-up animate-delay-1 mt-3 max-w-4xl text-4xl font-extrabold leading-tight text-white sm:text-5xl">
               Shop print and branding products built to help you show up properly.
             </h1>
-            <p className="mt-5 max-w-3xl text-[17px] leading-relaxed text-slate-600">
+            <p className="animate-fade-up animate-delay-2 mt-5 max-w-3xl text-[17px] leading-relaxed text-slate-100">
               From everyday print essentials to event branding, packaging, and book production, Bilta
               offers products and services designed to help you present with more confidence and
               clarity.
@@ -104,9 +123,9 @@ function Services() {
           </div>
         </section>
 
-        <section className="bg-[#F4F8FC] py-16 md:py-20">
+        <section className="services-reveal reveal bg-[#F4F8FC] py-16 md:py-20">
           <div className="container-shell">
-            <div className="mb-8 flex items-end justify-between gap-4">
+            <div className="mb-8 flex items-end justify-between gap-4 animate-fade-up">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-navy">What we offer</p>
                 <h2 className="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">Choose what fits your project</h2>
@@ -123,10 +142,11 @@ function Services() {
                 return (
                   <article
                     key={category.title}
-                    className="group border border-slate-200 bg-white p-7 shadow-sm transition hover:shadow-md"
+                    className="group animate-fade-up border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+                    style={{ animationDelay: '80ms' }}
                   >
                     <div className="flex items-start gap-4">
-                      <div className={`inline-flex rounded-xl bg-gradient-to-br p-3 ${category.accent}`}>
+                      <div className={`inline-flex rounded-xl bg-gradient-to-br p-3 transition duration-300 group-hover:scale-110 ${category.accent}`}>
                         <Icon size={18} className="text-navy" />
                       </div>
                       <div>
@@ -137,7 +157,7 @@ function Services() {
 
                     <ul className="mt-5 grid gap-x-4 gap-y-2 border-t border-slate-100 pt-5 text-sm text-slate-700 sm:grid-cols-2">
                       {category.includes.map((item) => (
-                        <li key={item} className="flex items-start gap-2">
+                        <li key={item} className="flex items-start gap-2 transition duration-300 hover:translate-x-1">
                           <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-navy" />
                           <span>{item}</span>
                         </li>
@@ -146,7 +166,7 @@ function Services() {
 
                     <Link
                       to={category.to}
-                      className="mt-6 inline-flex items-center border-b border-transparent text-sm font-semibold text-navy transition hover:border-navy"
+                      className="mt-6 inline-flex items-center border-b border-transparent text-sm font-semibold text-navy transition duration-300 group-hover:translate-x-1 hover:border-navy"
                     >
                       {category.cta}
                     </Link>

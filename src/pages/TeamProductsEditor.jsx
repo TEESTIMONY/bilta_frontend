@@ -10,7 +10,7 @@ const blankProduct = {
   title: '',
   description: '',
   details: '',
-  enableDesignUpload: false,
+  sizeOptions: [],
   image: '',
   images: [],
   price: '',
@@ -37,6 +37,15 @@ function readFilesAsDataUrls(fileList = []) {
   )
 }
 
+function parseSizeOptions(text = '') {
+  return [...new Set(
+    text
+      .split('\n')
+      .map((entry) => entry.trim())
+      .filter(Boolean),
+  )]
+}
+
 function TeamProductsEditor() {
   const [products, setProducts] = useState([])
   const [status, setStatus] = useState('')
@@ -46,6 +55,8 @@ function TeamProductsEditor() {
   const [newProductStatus, setNewProductStatus] = useState('')
   const [productPendingDelete, setProductPendingDelete] = useState(null)
   const [activeCategory, setActiveCategory] = useState('All')
+  const [selectedProductIndex, setSelectedProductIndex] = useState(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -90,6 +101,12 @@ function TeamProductsEditor() {
         const images = buildImages(item.image, extras)
         return { ...item, image: images[0] || '', images }
       }),
+    )
+  }
+
+  function updateSizeOptions(index, text) {
+    setProducts((current) =>
+      current.map((item, i) => (i === index ? { ...item, sizeOptions: parseSizeOptions(text) } : item)),
     )
   }
 
@@ -175,6 +192,13 @@ function TeamProductsEditor() {
     })
   }
 
+  function updateNewProductSizeOptions(text) {
+    setNewProduct((current) => ({
+      ...current,
+      sizeOptions: parseSizeOptions(text),
+    }))
+  }
+
   async function handleNewProductImageUpload(files) {
     if (!files?.length) return
 
@@ -256,10 +280,26 @@ function TeamProductsEditor() {
       .filter(({ product }) => activeCategory === 'All' || product.category === activeCategory)
   }, [activeCategory, products])
 
+  function handleSelectProductRow(index) {
+    setSelectedProductIndex(index)
+    setIsEditModalOpen(true)
+  }
+
+  function closeEditModal() {
+    setIsEditModalOpen(false)
+    setSelectedProductIndex(null)
+  }
+
+  const selectedProduct = selectedProductIndex !== null ? products[selectedProductIndex] : null
+
   const inputClass =
     'mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-navy focus:ring-2 focus:ring-navy/15'
   const textareaClass =
     'mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-navy focus:ring-2 focus:ring-navy/15'
+  const modalInputClass =
+    'mt-2 w-full border border-slate-200 bg-white/95 px-4 py-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-navy focus:ring-4 focus:ring-navy/10'
+  const modalTextareaClass =
+    'mt-2 w-full border border-slate-200 bg-white/95 px-4 py-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-navy focus:ring-4 focus:ring-navy/10'
 
   return (
     <>
@@ -309,10 +349,10 @@ function TeamProductsEditor() {
                   </select>
                 </div>
 
-                <div className="flex flex-wrap gap-2 lg:justify-end lg:col-start-2">
-                  <button onClick={openAddModal} className="btn-primary rounded-md">Add Product</button>
-                  <button onClick={handleSave} disabled={isSaving} className="rounded-md border border-navy px-4 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy hover:text-white disabled:cursor-not-allowed disabled:opacity-60">{isSaving ? 'Saving...' : 'Save'}</button>
-                  <button onClick={handleReset} className="rounded-md border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Reset</button>
+                <div className="flex flex-col gap-2 sm:flex-row lg:justify-end lg:col-start-2">
+                  <button onClick={openAddModal} className="btn-primary w-full rounded-md sm:w-auto">Add Product</button>
+                  <button onClick={handleSave} disabled={isSaving} className="w-full rounded-md border border-navy px-4 py-2.5 text-sm font-semibold text-navy transition hover:bg-navy hover:text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">{isSaving ? 'Saving...' : 'Save'}</button>
+                  <button onClick={handleReset} className="w-full rounded-md border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:w-auto">Reset</button>
                 </div>
               </div>
             </div>
@@ -323,123 +363,273 @@ function TeamProductsEditor() {
               </div>
             )}
 
-            <div className="space-y-5">
-              {visibleProducts.map(({ product, index }) => (
-                <article key={`${product.slug}-${index}`} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md md:p-6">
-                  <div className="mb-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Product {index + 1}</p>
-                      <h2 className="mt-1 text-lg font-bold text-navy">{product.title || 'Untitled product'}</h2>
-                    </div>
-                    <button onClick={() => askRemoveProduct(index)} className="rounded-md border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
-                  </div>
-
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <label className="block text-sm font-semibold text-slate-700">
-                      Slug (used in product URL)
-                      <input value={product.slug} onChange={(e) => updateProduct(index, 'slug', e.target.value)} className={inputClass} placeholder="one-sided-business-cards" />
-                    </label>
-
-                    <label className="block text-sm font-semibold text-slate-700">
-                      Category (used for filters)
-                      <input value={product.category} onChange={(e) => updateProduct(index, 'category', e.target.value)} className={inputClass} placeholder="BUSINESS CARDS" />
-                    </label>
-
-                    <label className="block text-sm font-semibold text-slate-700">
-                      Product title
-                      <input value={product.title} onChange={(e) => updateProduct(index, 'title', e.target.value)} className={inputClass} placeholder="One-sided Business Cards" />
-                    </label>
-
-                    <label className="block text-sm font-semibold text-slate-700">
-                      Price (shown on shop cards)
-                      <input
-                        value={product.price || ''}
-                        onChange={(e) => updateProduct(index, 'price', e.target.value)}
-                        className={inputClass}
-                        placeholder="₦12,000 or Price on request"
-                      />
-                    </label>
-
-                    <label className="md:col-span-2 mt-1 flex items-start gap-3 rounded-md border border-navy/30 bg-navy/5 p-3 text-sm font-semibold text-slate-800">
-                      <input
-                        type="checkbox"
-                        checked={Boolean(product.enableDesignUpload)}
-                        onChange={(e) => updateProduct(index, 'enableDesignUpload', e.target.checked)}
-                        className="mt-0.5 h-5 w-5 accent-navy"
-                      />
-                      <span>
-                        <span className="block font-extrabold text-navy">Allow upload?</span>
-                        <span className="text-xs font-medium text-slate-600">Shows the “Start and Upload Design” button on this product page.</span>
-                      </span>
-                    </label>
-                  </div>
-
-                  <label className="mt-3 block text-sm font-semibold text-slate-700">
-                    Description (shown on Shop cards)
-                    <textarea value={product.description || ''} onChange={(e) => updateProduct(index, 'description', e.target.value)} className={textareaClass} placeholder="Short product description" rows={3} />
-                  </label>
-
-                  <label className="mt-3 block text-sm font-semibold text-slate-700">
-                    Product details (shown on Product Details page)
-                    <textarea
-                      value={product.details || ''}
-                      onChange={(e) => updateProduct(index, 'details', e.target.value)}
-                      className={textareaClass}
-                      placeholder="Full product details for users who open this product"
-                      rows={4}
-                    />
-                  </label>
-
-                  <label className="mt-3 block text-sm font-semibold text-slate-700">
-                    Image URL (optional if uploading image below)
-                    <input value={product.image || ''} onChange={(e) => updatePrimaryImage(index, e.target.value)} className={inputClass} placeholder="https://..." />
-                  </label>
-
-                  <label className="mt-3 block text-sm font-semibold text-slate-700">
-                    Additional image URLs (one per line)
-                    <textarea
-                      value={(product.images || []).slice(1).join('\n')}
-                      onChange={(e) => updateExtraImages(index, e.target.value)}
-                      className={textareaClass}
-                      placeholder="https://..."
-                      rows={3}
-                    />
-                  </label>
-
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <label className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                      Upload image(s)
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                        onChange={(e) => handleImageUpload(index, e.target.files)}
-                      />
-                    </label>
-                    <span className="text-sm text-slate-500">You can paste image URLs, upload one image, or upload multiple images.</span>
-                  </div>
-
-                  {(product.images || [product.image]).filter(Boolean).length ? (
-                    <div className="mt-4 rounded-md border border-slate-200 bg-slate-50/70 p-3">
-                      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Image previews</p>
-                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                        {(product.images || [product.image]).filter(Boolean).map((image, imageIndex) => (
-                          <div key={`${product.slug}-${imageIndex}`} className="overflow-hidden rounded-md border border-slate-200 bg-white">
-                            <img
-                              src={image}
-                              alt={`${product.title || `Product ${index + 1}`} preview ${imageIndex + 1}`}
-                              className="aspect-[4/3] w-full object-cover"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                </article>
-              ))}
+            <div className="border border-yellow/30 bg-yellow/10 px-4 py-3 text-sm text-slate-700 lg:hidden">
+              Swipe sideways to see the full product table and quick actions on mobile.
             </div>
 
+            <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+              <table className="w-full min-w-[980px] text-left text-sm">
+                <thead className="bg-slate-100 text-xs uppercase tracking-[0.12em] text-slate-600">
+                  <tr>
+                    <th className="px-3 py-3">S/N</th>
+                    <th className="px-3 py-3">Title</th>
+                    <th className="px-3 py-3">Slug</th>
+                    <th className="px-3 py-3">Category</th>
+                    <th className="px-3 py-3">Price</th>
+                    <th className="px-3 py-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleProducts.map(({ product, index }, rowIndex) => (
+                    <tr
+                      key={`table-${product.slug}-${index}`}
+                      onClick={() => handleSelectProductRow(index)}
+                      className={`cursor-pointer border-t border-slate-100 transition hover:bg-slate-50 ${
+                        selectedProductIndex === index ? 'bg-navy/5' : ''
+                      }`}
+                    >
+                      <td className="px-3 py-3 font-semibold text-slate-700">{rowIndex + 1}</td>
+                      <td className="px-3 py-3 font-semibold text-slate-900">{product.title || 'Untitled product'}</td>
+                      <td className="px-3 py-3 text-slate-600">{product.slug || '-'}</td>
+                      <td className="px-3 py-3">{product.category || '-'}</td>
+                      <td className="px-3 py-3">{product.price || '-'}</td>
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        <div className="flex items-center gap-2 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => handleSelectProductRow(index)}
+                            className="rounded-md border border-navy px-2.5 py-1 text-xs font-semibold text-navy transition hover:bg-navy hover:text-white"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => askRemoveProduct(index)}
+                            className="rounded-md border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {isEditModalOpen && selectedProduct ? (
+              <div className="fixed inset-0 z-[75] bg-slate-950/60 p-4 backdrop-blur-md">
+                <div className="flex min-h-full items-center justify-center">
+                  <div className="relative max-h-[92vh] w-full max-w-6xl overflow-hidden border border-white/60 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.28)]">
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-r from-yellow/20 via-white to-navy/10" />
+
+                    <div className="hide-scrollbar max-h-[92vh] overflow-y-auto">
+                      <div className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/92 px-5 py-4 backdrop-blur md:px-7">
+                        <div className="flex flex-wrap items-start justify-between gap-4">
+                          <div>
+                            <p className="inline-flex border border-navy/15 bg-navy/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-navy">
+                              Product Details
+                            </p>
+                            <h2 className="mt-3 text-2xl font-extrabold text-navy md:text-3xl">
+                              {selectedProduct.title || 'Untitled product'}
+                            </h2>
+                            <p className="mt-2 text-sm text-slate-500">
+                              Edit product content, pricing, media, and product options from one focused popup.
+                            </p>
+                          </div>
+                          <button
+                            onClick={closeEditModal}
+                            className="border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-navy hover:text-navy hover:shadow-md"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-6 p-5 md:p-7 xl:grid-cols-[1.15fr_0.85fr]">
+                        <div className="space-y-5">
+                          <section className="border border-slate-200 bg-slate-50/70 p-5 shadow-sm">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                              Core Details
+                            </p>
+                            <h3 className="mt-1 text-lg font-extrabold text-slate-900">
+                              Product identity
+                            </h3>
+
+                            <div className="mt-4 grid gap-4 md:grid-cols-2">
+                              <label className="block text-sm font-semibold text-slate-700">
+                                Slug (used in product URL)
+                                <input
+                                  value={selectedProduct.slug}
+                                  onChange={(e) => updateProduct(selectedProductIndex, 'slug', e.target.value)}
+                                  className={modalInputClass}
+                                  placeholder="one-sided-business-cards"
+                                />
+                              </label>
+
+                              <label className="block text-sm font-semibold text-slate-700">
+                                Category (used for filters)
+                                <input
+                                  value={selectedProduct.category}
+                                  onChange={(e) => updateProduct(selectedProductIndex, 'category', e.target.value)}
+                                  className={modalInputClass}
+                                  placeholder="BUSINESS CARDS"
+                                />
+                              </label>
+
+                              <label className="block text-sm font-semibold text-slate-700">
+                                Product title
+                                <input
+                                  value={selectedProduct.title}
+                                  onChange={(e) => updateProduct(selectedProductIndex, 'title', e.target.value)}
+                                  className={modalInputClass}
+                                  placeholder="One-sided Business Cards"
+                                />
+                              </label>
+
+                              <label className="block text-sm font-semibold text-slate-700">
+                                Price (shown on shop cards)
+                                <input
+                                  value={selectedProduct.price || ''}
+                                  onChange={(e) => updateProduct(selectedProductIndex, 'price', e.target.value)}
+                                  className={modalInputClass}
+                                  placeholder="N12,000 or Price on request"
+                                />
+                              </label>
+                            </div>
+                          </section>
+
+                          <section className="border border-slate-200 bg-white p-5 shadow-sm">
+                            <div className="grid gap-4">
+                              <label className="block text-sm font-semibold text-slate-700">
+                                Description (shown on Shop cards)
+                                <textarea
+                                  value={selectedProduct.description || ''}
+                                  onChange={(e) => updateProduct(selectedProductIndex, 'description', e.target.value)}
+                                  className={modalTextareaClass}
+                                  placeholder="Short product description"
+                                  rows={4}
+                                />
+                              </label>
+
+                              <label className="block text-sm font-semibold text-slate-700">
+                                Product details (shown on Product Details page)
+                                <textarea
+                                  value={selectedProduct.details || ''}
+                                  onChange={(e) => updateProduct(selectedProductIndex, 'details', e.target.value)}
+                                  className={modalTextareaClass}
+                                  placeholder="Full product details for users who open this product"
+                                  rows={5}
+                                />
+                              </label>
+
+                              <label className="block text-sm font-semibold text-slate-700">
+                                Size/specification options (one per line)
+                                <textarea
+                                  value={(selectedProduct.sizeOptions || []).join('\n')}
+                                  onChange={(e) => updateSizeOptions(selectedProductIndex, e.target.value)}
+                                  className={modalTextareaClass}
+                                  placeholder={`Standard size\nPremium size\nCustom specification`}
+                                  rows={4}
+                                />
+                                <span className="mt-2 block text-xs font-medium text-slate-500">
+                                  These options will appear as selectable choices on the product details page.
+                                </span>
+                              </label>
+                            </div>
+                          </section>
+                        </div>
+
+                        <div className="space-y-5">
+                          <section className="border border-slate-200 bg-slate-50/70 p-5 shadow-sm">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                              Media
+                            </p>
+                            <h3 className="mt-1 text-lg font-extrabold text-slate-900">
+                              Images and previews
+                            </h3>
+
+                            <label className="mt-4 block text-sm font-semibold text-slate-700">
+                              Image URL (optional if uploading image below)
+                              <input
+                                value={selectedProduct.image || ''}
+                                onChange={(e) => updatePrimaryImage(selectedProductIndex, e.target.value)}
+                                className={modalInputClass}
+                                placeholder="https://..."
+                              />
+                            </label>
+
+                            <label className="mt-4 block text-sm font-semibold text-slate-700">
+                              Additional image URLs (one per line)
+                              <textarea
+                                value={(selectedProduct.images || []).slice(1).join('\n')}
+                                onChange={(e) => updateExtraImages(selectedProductIndex, e.target.value)}
+                                className={modalTextareaClass}
+                                placeholder="https://..."
+                                rows={4}
+                              />
+                            </label>
+
+                            <div className="mt-4 flex flex-wrap items-center gap-3">
+                              <label className="border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-navy hover:text-navy hover:shadow-md">
+                                Upload image(s)
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  className="hidden"
+                                  onChange={(e) => handleImageUpload(selectedProductIndex, e.target.files)}
+                                />
+                              </label>
+                              <span className="text-sm text-slate-500">
+                                Paste image URLs or upload one or more files.
+                              </span>
+                            </div>
+
+                            {(selectedProduct.images || [selectedProduct.image]).filter(Boolean).length ? (
+                              <div className="mt-5 border border-slate-200 bg-white p-4 shadow-sm">
+                                <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                                  Image previews
+                                </p>
+                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                  {(selectedProduct.images || [selectedProduct.image]).filter(Boolean).map((image, imageIndex) => (
+                                    <div
+                                      key={`${selectedProduct.slug || 'selected-product'}-${imageIndex}`}
+                                      className="overflow-hidden border border-slate-200 bg-white shadow-sm"
+                                    >
+                                      <img
+                                        src={image}
+                                        alt={`${selectedProduct.title || 'Product'} preview ${imageIndex + 1}`}
+                                        className="aspect-[4/3] w-full object-cover transition duration-500 hover:scale-105"
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : null}
+                          </section>
+
+                          <section className="border border-navy/10 bg-navy p-5 text-white shadow-lg">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-yellow">
+                              Editing flow
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-slate-100">
+                              Make your changes here, then use the main "Save" button on the page to publish them to your current source.
+                            </p>
+                            <div className="mt-4 flex justify-end">
+                              <button
+                                onClick={closeEditModal}
+                                className="border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-navy"
+                              >
+                                Done
+                              </button>
+                            </div>
+                          </section>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
             {isAddModalOpen ? (
               <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4">
                 <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-5 shadow-2xl md:p-6">
@@ -483,18 +673,6 @@ function TeamProductsEditor() {
                       Price
                       <input value={newProduct.price || ''} onChange={(e) => updateNewProduct('price', e.target.value)} className={inputClass} placeholder="₦12,000" />
                     </label>
-                    <label className="md:col-span-2 mt-1 flex items-start gap-3 rounded-md border border-navy/30 bg-navy/5 p-3 text-sm font-semibold text-slate-800">
-                      <input
-                        type="checkbox"
-                        checked={Boolean(newProduct.enableDesignUpload)}
-                        onChange={(e) => updateNewProduct('enableDesignUpload', e.target.checked)}
-                        className="mt-0.5 h-5 w-5 accent-navy"
-                      />
-                      <span>
-                        <span className="block font-extrabold text-navy">Allow upload?</span>
-                        <span className="text-xs font-medium text-slate-600">Shows the “Start and Upload Design” button on this product page.</span>
-                      </span>
-                    </label>
                     <label className="block text-sm font-semibold text-slate-700 md:col-span-2">
                       Description
                       <textarea value={newProduct.description || ''} onChange={(e) => updateNewProduct('description', e.target.value)} className={textareaClass} rows={3} placeholder="Short product description" />
@@ -507,6 +685,16 @@ function TeamProductsEditor() {
                         className={textareaClass}
                         rows={4}
                         placeholder="Full product details for product details page"
+                      />
+                    </label>
+                    <label className="block text-sm font-semibold text-slate-700 md:col-span-2">
+                      Size/specification options (one per line)
+                      <textarea
+                        value={(newProduct.sizeOptions || []).join('\n')}
+                        onChange={(e) => updateNewProductSizeOptions(e.target.value)}
+                        className={textareaClass}
+                        rows={4}
+                        placeholder={`Standard size\nPremium size\nCustom specification`}
                       />
                     </label>
                     <label className="block text-sm font-semibold text-slate-700 md:col-span-2">
@@ -600,3 +788,5 @@ function TeamProductsEditor() {
 }
 
 export default TeamProductsEditor
+
+

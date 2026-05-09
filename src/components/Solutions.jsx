@@ -10,7 +10,7 @@ const kits = [
 
 function Solutions() {
   return (
-    <section className="bg-navy py-16 md:py-20">
+    <section className="home-band-section bg-navy py-16 md:py-20">
       <div className="container-shell">
         <h2 className="max-w-3xl text-3xl font-extrabold text-white sm:text-4xl">
           Ready-made solutions for businesses and events.
@@ -23,7 +23,7 @@ function Solutions() {
           {kits.map(([label, title, desc, to]) => (
             <article
               key={title}
-              className="border border-white/20 bg-white/10 p-6 text-white shadow-md transition hover:-translate-y-1"
+              className="home-grid-card border border-white/20 bg-white/10 p-6 text-white shadow-md transition hover:-translate-y-1"
             >
               <p className="text-xs font-bold uppercase tracking-widest text-yellow">{label}</p>
               <h3 className="mt-2 text-xl font-bold text-white">{title}</h3>

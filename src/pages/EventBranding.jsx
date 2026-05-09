@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import { buildWhatsAppUrl } from '../utils/whatsapp'
 
 const items = [
   'Welcome signs',
@@ -24,34 +26,57 @@ const whyItMatters = [
 ]
 
 function EventBranding() {
+  useEffect(() => {
+    const nodes = document.querySelectorAll('.event-reveal')
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.14 }
+    )
+
+    nodes.forEach((node) => observer.observe(node))
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <>
       <Navbar />
       <main>
-        <section className="border-b border-slate-200 bg-gradient-to-b from-white to-[#F8FAFC] py-16 md:py-20">
+        <section className="border-b border-slate-200 bg-navy py-16 text-white md:py-20">
           <div className="container-shell">
-            <p className="text-sm font-semibold uppercase tracking-widest text-navy">Event Branding</p>
-            <h1 className="mt-3 max-w-4xl text-4xl font-extrabold leading-tight sm:text-5xl">
+            <p className="animate-fade-up text-sm font-semibold uppercase tracking-widest text-yellow">Event Branding</p>
+            <h1 className="animate-fade-up animate-delay-1 mt-3 max-w-4xl text-4xl font-extrabold leading-tight text-white sm:text-5xl">
               A well-branded event is remembered differently.
             </h1>
-            <p className="mt-5 max-w-3xl text-[17px] leading-relaxed text-slate-600">
+            <p className="animate-fade-up animate-delay-2 mt-5 max-w-3xl text-[17px] leading-relaxed text-slate-100">
               From welcome signage to printed details and branded materials, Bilta helps you create
               event branding that looks coordinated, polished, and intentional.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="animate-fade-up animate-delay-3 mt-6 flex flex-wrap gap-3">
               <Link to="/products" className="btn-primary">
                 Shop Event Branding
               </Link>
-              <Link to="/contact" className="btn-ghost">
-                Request Event Quote
-              </Link>
+              <a
+                href={buildWhatsAppUrl()}
+                className="border border-white px-4 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-navy"
+                target="_blank"
+                rel="noreferrer"
+              >
+                WhatsApp
+              </a>
             </div>
           </div>
         </section>
 
-        <section className="bg-[#F4F8FC] py-16">
+        <section className="event-reveal reveal bg-[#F4F8FC] py-16">
           <div className="container-shell grid gap-6 lg:grid-cols-2">
-            <article className="border border-slate-200 bg-white p-7 shadow-sm">
+            <article className="animate-fade-up border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
               <h2 className="text-2xl font-extrabold">The little details are what make an event look complete.</h2>
               <p className="mt-3 text-sm leading-relaxed text-slate-600">
                 A lot of events have beautiful outfits, décor, and planning — but weak branding.
@@ -67,11 +92,11 @@ function EventBranding() {
               </p>
             </article>
 
-            <article className="border border-slate-200 bg-white p-7 shadow-sm">
+            <article className="animate-fade-up animate-delay-1 border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
               <h2 className="text-2xl font-extrabold">Event branding support includes:</h2>
               <ul className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
                 {items.map((item) => (
-                  <li key={item} className="flex items-start gap-2 border border-slate-100 bg-slate-50 px-3 py-2">
+                  <li key={item} className="flex items-start gap-2 border border-slate-100 bg-slate-50 px-3 py-2 transition duration-300 hover:-translate-y-0.5 hover:border-yellow">
                     <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-navy" />
                     <span>{item}</span>
                   </li>
@@ -81,8 +106,8 @@ function EventBranding() {
           </div>
         </section>
 
-        <section className="container-shell py-16">
-          <div className="border border-slate-200 bg-white p-7 shadow-sm">
+        <section className="event-reveal reveal container-shell py-16">
+          <div className="animate-fade-up border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:shadow-lg">
             <h2 className="text-3xl font-extrabold text-slate-900">Why event branding matters</h2>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">
               Event branding is more than decoration — it shapes how the event is experienced and remembered.
@@ -90,7 +115,7 @@ function EventBranding() {
             <p className="mt-4 text-sm font-semibold text-slate-800">Strong event branding helps you:</p>
             <ul className="mt-3 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
               {whyItMatters.map((point) => (
-                <li key={point} className="flex items-start gap-2 border border-slate-100 bg-slate-50 px-3 py-2">
+                <li key={point} className="flex items-start gap-2 border border-slate-100 bg-slate-50 px-3 py-2 transition duration-300 hover:-translate-y-0.5 hover:border-yellow">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-navy" />
                   <span>{point}</span>
                 </li>
@@ -98,7 +123,7 @@ function EventBranding() {
             </ul>
           </div>
 
-          <div className="mt-10 border border-slate-200 bg-navy p-8">
+          <div className="animate-fade-up animate-delay-1 mt-10 border border-slate-200 bg-navy p-8 animate-float-soft">
             <h2 className="text-3xl font-extrabold text-white">Planning an event?</h2>
             <p className="mt-3 text-slate-200">
               Let’s help you produce the branding materials that bring it together properly.
@@ -107,12 +132,14 @@ function EventBranding() {
               <Link to="/products" className="btn-primary">
                 Shop Event Branding
               </Link>
-              <Link
-                to="/contact"
+              <a
+                href={buildWhatsAppUrl()}
                 className="border border-white px-4 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-navy"
+                target="_blank"
+                rel="noreferrer"
               >
-                Get a Quote
-              </Link>
+                WhatsApp
+              </a>
             </div>
           </div>
         </section>
